@@ -25,19 +25,48 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends ActionBarActivity implements ForecastFragment.listItemClickedListener {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    //Tag for the detail fragment
+    public static final String DETAIL_FRAGMENT_TAG = "DFTAG";
+
+    //Store the current location setting so that later it can be used to
+    //monitor a location change
+    private String mLocationSetting;
+    private String mUnitSetting;
+
+    //Flag to check if device is two pane
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
-                    .commit();
+
+        if(null == findViewById(R.id.weather_detail_container)) {
+            mTwoPane = false;
         }
+        else
+        {
+            mTwoPane = true;
+            //Attach detail fragment to the weather_detail_container
+            getSupportFragmentManager().beginTransaction().add(R.id.weather_detail_container,
+                    new DetailFragment(),DETAIL_FRAGMENT_TAG).commit();
+        }
+
+        //Get the current value of mLocationSetting
+        SharedPreferences sharedPreferences = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(this);
+        mLocationSetting = sharedPreferences.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+
+        mUnitSetting = sharedPreferences.getString(
+                getString(R.string.pref_units_key),
+                getString(R.string.pref_units_metric)
+        );
     }
 
     @Override
@@ -89,5 +118,85 @@ public class MainActivity extends ActionBarActivity {
         } else {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Check if the location setting is changed
+        SharedPreferences sharedPreferences = (SharedPreferences)PreferenceManager.getDefaultSharedPreferences(this);
+
+        String newLocationSetting = sharedPreferences.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+
+        String newUnitSetting = sharedPreferences.getString(
+                getString(R.string.pref_units_key),
+                getString(R.string.pref_units_metric)
+        );
+
+        if(!mLocationSetting.equals(newLocationSetting))
+        {
+            //Get the associated fragment object
+            ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().
+                    findFragmentById(R.id.fragment_forecast);
+
+            if(forecastFragment != null)
+            {
+                //Perform update
+                forecastFragment.onLocationChanged();
+            }
+
+            //Get the associated detail fragment object
+            DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().
+                    findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            if (detailFragment != null) {
+                detailFragment.onLocationChanged(newLocationSetting);
+            }
+
+
+            mLocationSetting = newLocationSetting;
+        }
+
+        if(newUnitSetting != mUnitSetting)
+        {
+            ForecastFragment forecastFragment = (ForecastFragment)getSupportFragmentManager().
+                    findFragmentById(R.id.fragment_forecast);
+            forecastFragment.onUnitChanged();
+
+            //Get the associated detail fragment object
+            DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().
+                    findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            if (detailFragment != null) {
+                detailFragment.onUnitChanged();
+            }
+            mUnitSetting = newUnitSetting;
+        }
+    }
+
+    @Override
+    public void onListItemClicked(Uri uriWithDate) {
+
+        //Replace the fragment in the container
+        if (mTwoPane == true) {
+            //We want to pass the uri also to this new fragment. We will use bundle for this purpose
+            Bundle uriData = new Bundle();
+            uriData.putParcelable(DetailFragment.URI_KEY, uriWithDate);
+
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(uriData);
+
+            getSupportFragmentManager().beginTransaction().
+            replace(R.id.weather_detail_container, detailFragment   ,DETAIL_FRAGMENT_TAG).commit();
+        }
+        //if device doesn't support two pane then launch an intent for
+        //DetailActivity
+        else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.setData(uriWithDate);
+            startActivity(intent);
+        }
+
     }
 }

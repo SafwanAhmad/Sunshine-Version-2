@@ -126,6 +126,11 @@ public class WeatherContract {
         // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
         public static final String COLUMN_DEGREES = "degrees";
 
+
+
+
+
+
         public static Uri buildWeatherUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
@@ -134,7 +139,8 @@ public class WeatherContract {
             Student: Fill in this buildWeatherLocation function
          */
         public static Uri buildWeatherLocation(String locationSetting) {
-            return null;
+
+            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
         }
 
         public static Uri buildWeatherLocationWithStartDate(
