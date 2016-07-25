@@ -38,6 +38,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
     private String mLocationSetting;
     private String mUnitSetting;
 
+
     //Flag to check if device is two pane
     private boolean mTwoPane;
 

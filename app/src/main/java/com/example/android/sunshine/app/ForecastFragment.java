@@ -47,6 +47,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter mForecastAdapter;
     private final int loaderId = 0;
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
+    private static final String LAST_SELECTED_INDEX_KEY = "lastSelectedIndex";
+
+    private int lastSelectedIndex = ListView.INVALID_POSITION;
 
     //Notification callbacks
     public interface listItemClickedListener
@@ -62,7 +65,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // using the location set by the user, which is only in the Location table.
             // So the convenience is worth it.
             WeatherContract.WeatherEntry.TABLE_NAME + "." +
-            WeatherContract.WeatherEntry._ID,
+                    WeatherContract.WeatherEntry._ID,
             WeatherContract.WeatherEntry.COLUMN_DATE,
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
@@ -122,7 +125,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
+
+        if(savedInstanceState != null && savedInstanceState.containsKey(LAST_SELECTED_INDEX_KEY))
+        {
+            lastSelectedIndex = savedInstanceState.getInt(LAST_SELECTED_INDEX_KEY);
+        }
 
         //Create a forecast adapter no cursor attached
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
@@ -134,6 +142,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
 
+
+        //Note the type of third parameter of onCreateView. It's now made final, as
+        //it's being used inside this anonymous class. Still the above method overrides
+        //the base class fragment method. (Read closure in java for more information).
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -146,7 +158,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 if(cursor != null) {
 
                     Uri weatherWithDate = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                                    cursor.getString(COL_LOCATION_SETTING),cursor.getLong(COL_WEATHER_DATE));
+                            cursor.getString(COL_LOCATION_SETTING),cursor.getLong(COL_WEATHER_DATE));
 
                     try
                     {
@@ -155,12 +167,22 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     catch (ClassCastException cEx) {
                         Log.e(LOG_TAG, getActivity().getClass().getSimpleName() + " must implement interface " + listItemClickedListener.class.getSimpleName());
                     }
+                    //Save the current selected item position, in case two pane is supported
+                    lastSelectedIndex = position;
                 }
             }
         });
 
         return rootView;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(lastSelectedIndex != ListView.INVALID_POSITION)
+            outState.putInt(LAST_SELECTED_INDEX_KEY,lastSelectedIndex);
+    }
+
 
     @Override
     public void onDestroy() {
@@ -217,6 +239,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         //Update the adapter
         mForecastAdapter.swapCursor(data);
+
+        if(lastSelectedIndex != ListView.INVALID_POSITION) {
+            //Restore to last scrolled position
+            // Get a reference to the ListView, and attach this adapter to it.
+            ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
+
+            listView.smoothScrollToPosition(lastSelectedIndex);
+        }
+
     }
 
     @Override
