@@ -125,7 +125,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             final Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         if(savedInstanceState != null && savedInstanceState.containsKey(LAST_SELECTED_INDEX_KEY))
         {
