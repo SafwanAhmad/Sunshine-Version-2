@@ -6,7 +6,5 @@
     android:id="@+id/fragment_forecast"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     tools:layout="@layout/fragment_main">
 </fragment>

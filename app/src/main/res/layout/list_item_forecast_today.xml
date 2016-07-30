@@ -5,35 +5,44 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:gravity="center_vertical"
-    android:background="@drawable/touch_selector">
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:background="@drawable/touch_selector_today">
 
     <!--First Linear layout-->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_weight="1">
+        android:layout_marginLeft="60dp"
+        android:layout_weight="7">
 
         <!--Create three text views -->
         <TextView
             android:id="@+id/list_item_date_textview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#FFFFFF"
             android:text="TODAY, JUNE 24"/>
 
         <TextView
             android:id="@+id/list_item_high_textview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="72sp"
+            android:fontFamily="sans-serif-light"
+            android:textColor="#FFFFFF"
             android:text="21"/>
 
         <TextView
             android:id="@+id/list_item_low_textview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="36sp"
+            android:fontFamily="sans-serif-light"
+            android:textColor="#FFFFFF"
             android:text="8"/>
 
     </LinearLayout>
@@ -43,17 +52,29 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_weight="5"
         android:gravity="center_horizontal"
-        android:layout_weight="1">
+        android:layout_gravity="bottom">
 
-        <ImageView
+        <!--Image in contained inside 100x100 frame -->
+        <FrameLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp">
+
+            <ImageView
             android:id="@+id/list_item_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+        </FrameLayout>
+
         <TextView
             android:id="@+id/list_item_forecast_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#FFFFFF"
+            android:paddingTop="16dp"
             android:text="Clear"/>
     </LinearLayout>
 
