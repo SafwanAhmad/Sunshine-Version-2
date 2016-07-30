@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -68,6 +69,11 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
                 getString(R.string.pref_units_key),
                 getString(R.string.pref_units_metric)
         );
+
+        //Also inform forecastAdapter whether to use special view for today or not
+        //through assocaited fragment
+        Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+        ((ForecastFragment)associatedFragment).setUseTodayLayout(!mTwoPane);
     }
 
     @Override

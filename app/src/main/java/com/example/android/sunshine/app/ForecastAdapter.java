@@ -23,6 +23,10 @@ public class ForecastAdapter extends CursorAdapter {
 
     private static int count = 0;
 
+    //In Two pane UI for tablets we will not show today's weather as a
+    //special case
+    private boolean isTodayViewSpecial;
+
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -57,9 +61,15 @@ public class ForecastAdapter extends CursorAdapter {
         }
     }
 
+    //Setter to be used by main activity
+    public void setTodayViewSpecial(boolean value)
+    {
+        isTodayViewSpecial = value;
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && isTodayViewSpecial) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override

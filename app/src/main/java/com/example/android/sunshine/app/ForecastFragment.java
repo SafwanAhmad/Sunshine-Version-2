@@ -51,6 +51,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private int lastSelectedIndex = ListView.INVALID_POSITION;
 
+    private  boolean mUseTodayLayout;
+
     //Notification callbacks
     public interface listItemClickedListener
     {
@@ -89,6 +91,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LONG = 8;
 
     public ForecastFragment() {
+    }
+
+    //Setter for mUseTodayLayout
+    public void setUseTodayLayout(boolean useTodayLayout)
+    {
+        mUseTodayLayout = useTodayLayout;
+
+        if(mForecastAdapter != null)
+        {
+            mForecastAdapter.setTodayViewSpecial(mUseTodayLayout);
+        }
     }
 
     //Initialize Loader inside this
