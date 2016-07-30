@@ -50,6 +50,9 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
         if(null == findViewById(R.id.weather_detail_container)) {
             mTwoPane = false;
+
+            //Also remove the shadow of action bar
+            getSupportActionBar().setElevation(0f);
         }
         else
         {

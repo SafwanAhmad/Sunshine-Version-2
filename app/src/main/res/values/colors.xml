@@ -3,4 +3,9 @@
     <color name="color_blue">#ff64c2f4</color>
     <color name="color_grey">#cccccc</color>
     <color name="color_yellow">#FFFF00</color>
+
+    <!--Action bar color-->
+    <color name="color_primary">#FF1CA8F4</color>
+    <!--Notification bar color-->
+    <color name="color_primary_dark">#0288D1</color>
 </resources>
