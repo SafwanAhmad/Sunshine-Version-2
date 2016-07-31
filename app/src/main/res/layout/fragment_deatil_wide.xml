@@ -18,8 +18,10 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
+        <!--This linear layout takes 180dp of space while the total space is
+        850. Approximately 1:5 ratio-->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
@@ -28,15 +30,21 @@
                 android:id="@+id/detail_day_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
                 android:textSize="24sp"/>
 
             <TextView
                 android:id="@+id/detail_date_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="20sp"
+                android:textColor="#646464"/>
 
         </LinearLayout>
 
+        <!--This linear layout takes (850-180)dp of space while the total space is
+        850. Approximately 5:1 ratio-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,13 +55,16 @@
                 android:id="@+id/detail_high_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="48sp"/>
+                android:textSize="96sp"
+                android:fontFamily="sans-serif-condensed"/>
 
             <TextView
                 android:id="@+id/detail_low_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="48sp"/>
+                android:textSize="48sp"
+                android:fontFamily="sans-serif-light"
+                android:textColor="#646464"/>
 
             <!--Now these should be aligned with the contents
             of this linear layout-->
@@ -61,19 +72,25 @@
                 android:id="@+id/detail_humidity_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"/>
+                android:textAppearance="?android:textAppearanceLarge"
+                android:fontFamily="sans-serif-condensed"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"/>
 
             <TextView
                 android:id="@+id/detail_wind_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"/>
+                android:textAppearance="?android:textAppearanceLarge"
+                android:fontFamily="sans-serif-consdensed"
+                android:paddingBottom="4dp"/>
 
             <TextView
                 android:id="@+id/detail_pressure_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"/>
+                android:textAppearance="?android:textAppearanceLarge"
+                android:fontFamily="sans-serif-condensed"/>
 
         </LinearLayout>
 
@@ -84,15 +101,26 @@
             android:gravity="center_horizontal"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/detail_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <!--Image has to be 144x144dp. So we wrap it inside a
+            frame layout -->
+            <FrameLayout
+                android:layout_width="144dp"
+                android:layout_height="144dp">
+
+                <ImageView
+                    android:id="@+id/detail_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/detail_forecast_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="#646464"/>
 
         </LinearLayout>
 
