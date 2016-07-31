@@ -145,8 +145,16 @@ public class ForecastAdapter extends CursorAdapter {
         //Find date from the cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
 
+        //In two pane UI don't date with today
         //Set the date in friendly format
-        viewHolder.dateTextView.setText(Utility.getFriendlyDayString(context,dateInMillis));
+        if(isTodayViewSpecial)
+        {
+            viewHolder.dateTextView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        }
+        else
+        {
+            viewHolder.dateTextView.setText(Utility.getDayName(context, dateInMillis));
+        }
 
         //Find the forecast(description) from the cursor
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
