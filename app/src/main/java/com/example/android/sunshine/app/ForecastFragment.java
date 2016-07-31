@@ -15,11 +15,13 @@
  */
 package com.example.android.sunshine.app;
 
+import android.app.Instrumentation;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -166,18 +168,16 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
-                Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
 
-                if(cursor != null) {
+                if (cursor != null) {
 
                     Uri weatherWithDate = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                            cursor.getString(COL_LOCATION_SETTING),cursor.getLong(COL_WEATHER_DATE));
+                            cursor.getString(COL_LOCATION_SETTING), cursor.getLong(COL_WEATHER_DATE));
 
-                    try
-                    {
-                        ((listItemClickedListener)getActivity()).onListItemClicked(weatherWithDate);
-                    }
-                    catch (ClassCastException cEx) {
+                    try {
+                        ((listItemClickedListener) getActivity()).onListItemClicked(weatherWithDate);
+                    } catch (ClassCastException cEx) {
                         Log.e(LOG_TAG, getActivity().getClass().getSimpleName() + " must implement interface " + listItemClickedListener.class.getSimpleName());
                     }
                     //Save the current selected item position, in case two pane is supported
@@ -253,6 +253,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //Update the adapter
         mForecastAdapter.swapCursor(data);
 
+        //If there is some item in the list that was selected before then scroll to it
         if(lastSelectedIndex != ListView.INVALID_POSITION) {
             //Restore to last scrolled position
             // Get a reference to the ListView, and attach this adapter to it.
@@ -261,6 +262,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             listView.smoothScrollToPosition(lastSelectedIndex);
         }
 
+        //select the first element if two pane is supported and last state doesn't exist
+        else if(!mUseTodayLayout) {
+
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
+
+                    listView.performItemClick(listView,
+                            ListView.SCROLLBAR_POSITION_DEFAULT,
+                            listView.getItemIdAtPosition(ListView.SCROLLBAR_POSITION_DEFAULT));
+                }
+            });
+
+        }
     }
 
     @Override
