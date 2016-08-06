@@ -215,6 +215,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String description = data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
             mDescriptionView.setText(description);
 
+            //Also update the content description for the image view
+            mIconView.setContentDescription(description);
+
 
             //Set the humidity
             float humidity = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_HUMIDITY));
