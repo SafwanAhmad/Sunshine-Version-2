@@ -5,11 +5,9 @@ package com.example.android.sunshine.app;
  */
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -57,6 +55,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mHumidityView;
     private TextView mWindView;
     private TextView mPressureView;
+    private WindVane mWindVaneView;
 
     //Projection string used to select the required columns from the table
     private static final String [] FORECAST_COLUMNS = {
@@ -108,7 +107,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mHumidityView = (TextView) rootView.findViewById(R.id.detail_humidity_textview);
         mPressureView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
         mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
-
+        mWindVaneView = (WindVane) rootView.findViewById(R.id.detail_wind_vane_view);
         return rootView;
     }
 
@@ -226,6 +225,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             //Set the wind direction and speed
             float degrees = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DEGREES));
             float speed = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED));
+
+            //Update the wind direction information in WindVane
+            mWindVaneView.setVaneDirection(degrees);
 
             mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees));
 

@@ -108,6 +108,12 @@
             android:textAppearance="?android:textAppearanceLarge"
             android:fontFamily="sans-serif-light"/>
 
+        <!--My custom view -->
+        <com.example.android.sunshine.app.WindVane
+            android:id="@+id/detail_wind_vane_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 
