@@ -23,11 +23,13 @@ public class WindVane extends View {
 
     public void setVaneDirection(float windDirection) {
         //We are getting direction from which wind is blowing, to find vane direction
-        //we add 180 degrees.
-        float vaneDirectionDegrees = windDirection + 180;
+        //we add 180 degrees. This is the direction measured with the y axis (North)
+        //We convert it to angle measure w.r.t +X axis, i.e. pointing East.
+        float vaneDirectionDegrees = 90 - (windDirection + 180);
 
         //Convert vane direction from degrees to radians
         vaneDirection = (float) ((vaneDirectionDegrees/360.0)*(2 * Math.PI));
+
     }
 
     public WindVane(Context context) {
@@ -78,16 +80,17 @@ public class WindVane extends View {
         paint.setStrokeWidth(dpTopx(2));
         paint.setColor(Color.RED);
         int lineLength = radius - (int)dpTopx(10);
-        int endX = centerX + polarToCartesianX(lineLength, vaneDirection);
-        int endY = centerY + polarToCartesianY(lineLength, vaneDirection);
+        float lineAngle = vaneDirection;
+        int endX = centerX + worldToViewX((int) polarToCartesianX(lineLength, lineAngle));
+        int endY = centerY + worldToViewY((int) polarToCartesianY(lineLength, lineAngle));
         canvas.drawLine(centerX,centerY,endX,endY,paint);
 
         //Draw thick Black line.
         paint.setStrokeWidth(dpTopx(6));
         paint.setColor(Color.BLACK);
         lineLength = radius - (int)dpTopx(20);
-        endX = centerX + polarToCartesianX(lineLength, vaneDirection);
-        endY = centerY + polarToCartesianY(lineLength, vaneDirection);
+        endX = centerX + worldToViewX((int) polarToCartesianX(lineLength, lineAngle));
+        endY = centerY + worldToViewY((int)polarToCartesianY(lineLength, lineAngle));
         canvas.drawLine(centerX, centerY, endX, endY, paint);
 
     }
@@ -106,15 +109,12 @@ public class WindVane extends View {
         return -y;
     }
 
-    private int polarToCartesianX(float length, float angle){
-        return worldToViewX((int)(length * Math.sin(vaneDirection)));
+    private double polarToCartesianX(float length, float angle){
+        return (length * Math.cos(angle));
     }
 
-    private int polarToCartesianY(float length, float angle){
-        return worldToViewY((int)(length * Math.cos(vaneDirection)));
+    private double polarToCartesianY(float length, float angle){
+        return (length * Math.sin(angle));
     }
-
-
-
-
+    
 }
