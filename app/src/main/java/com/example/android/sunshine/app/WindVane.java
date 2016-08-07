@@ -30,6 +30,10 @@ public class WindVane extends View {
         //Convert vane direction from degrees to radians
         vaneDirection = (float) ((vaneDirectionDegrees/360.0)*(2 * Math.PI));
 
+        //Update the view that has been already drawn, because updated values are
+        //available once the detail fragment is done with loading data.
+        this.invalidate();
+
     }
 
     public WindVane(Context context) {
@@ -116,5 +120,5 @@ public class WindVane extends View {
     private double polarToCartesianY(float length, float angle){
         return (length * Math.sin(angle));
     }
-    
+
 }
