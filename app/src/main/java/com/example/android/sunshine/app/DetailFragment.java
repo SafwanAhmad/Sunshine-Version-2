@@ -226,10 +226,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             float degrees = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DEGREES));
             float speed = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED));
 
-            //Update the wind direction information in WindVane
-            mWindVaneView.setVaneDirection(degrees);
 
-            mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees));
+            //Update the wind direction information in WindVane
+            mWindVaneView.setVaneDirection(degrees, Utility.getFormattedWind(getActivity(), speed, degrees, false));
+
+            mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees, true));
 
             //Set the pressure
             float pressure = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
