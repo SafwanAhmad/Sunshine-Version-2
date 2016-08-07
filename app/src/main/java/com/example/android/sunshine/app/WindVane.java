@@ -8,20 +8,26 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 
 /**
  * Created by safwanx on 8/6/16.
  */
-public class WindVane extends View {
+public class WindVane extends View implements View.OnClickListener{
 
     int centerX;
     int centerY;
     int radius;
     float vaneDirection;
+    String mWeatherDescription;
     final DisplayMetrics metrics = getResources().getDisplayMetrics();
+    private AccessibilityManager mAccessibilityManager;
 
 
-    public void setVaneDirection(float windDirection) {
+    public void setVaneDirection(float windDirection, String weatherDescription) {
+        mWeatherDescription = weatherDescription;
+
         //We are getting direction from which wind is blowing, to find vane direction
         //we add 180 degrees. This is the direction measured with the y axis (North)
         //We convert it to angle measure w.r.t +X axis, i.e. pointing East.
@@ -36,16 +42,29 @@ public class WindVane extends View {
 
     }
 
+    //Method to register for clicks
+    private void registerListeners()
+    {
+        setOnClickListener(this);
+
+        //Retrieve the accessibility manager
+        mAccessibilityManager = (AccessibilityManager)getContext().
+                getSystemService(Context.ACCESSIBILITY_SERVICE);
+    }
+
     public WindVane(Context context) {
         super(context);
+        registerListeners();
     }
 
     public WindVane(Context context, AttributeSet attrs) {
         super(context, attrs);
+        registerListeners();
     }
 
     public WindVane(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        registerListeners();
     }
 
     @TargetApi(21)
@@ -121,4 +140,20 @@ public class WindVane extends View {
         return (length * Math.sin(angle));
     }
 
+    @Override
+    public void onClick(View v) {
+        if(mAccessibilityManager.isEnabled())
+        {
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED);
+        }
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+        super.dispatchPopulateAccessibilityEvent(event);
+
+        //Get the friendly wind description
+        event.getText().add(mWeatherDescription);
+        return  true;
+    }
 }
