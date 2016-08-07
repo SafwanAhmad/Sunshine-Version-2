@@ -170,7 +170,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
 
-                if (cursor != null) {
+                if (cursor != null && cursor.getCount() != 0 ){
 
                     Uri weatherWithDate = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             cursor.getString(COL_LOCATION_SETTING), cursor.getLong(COL_WEATHER_DATE));
