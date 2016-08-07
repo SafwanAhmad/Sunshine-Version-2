@@ -101,6 +101,12 @@
             android:fontFamily="sans-serif-light"
             android:paddingBottom="4dp"/>
 
+        <!--My custom view -->
+        <com.example.android.sunshine.app.WindVane
+            android:id="@+id/detail_wind_vane_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/detail_pressure_textview"
             android:layout_width="match_parent"
@@ -108,11 +114,7 @@
             android:textAppearance="?android:textAppearanceLarge"
             android:fontFamily="sans-serif-light"/>
 
-        <!--My custom view -->
-        <com.example.android.sunshine.app.WindVane
-            android:id="@+id/detail_wind_vane_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+
 
     </LinearLayout>
 
