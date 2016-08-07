@@ -58,7 +58,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
         {
             mTwoPane = true;
             //Attach detail fragment to the weather_detail_container
-            getSupportFragmentManager().beginTransaction().add(R.id.weather_detail_container,
+            getSupportFragmentManager().beginTransaction().replace(R.id.weather_detail_container,
                     new DetailFragment(),DETAIL_FRAGMENT_TAG).commit();
         }
 
