@@ -6,7 +6,7 @@
         android:drawable="@color/color_grey"></item>
 
     <item android:state_activated="true"
-        android:drawable="@color/color_grey"></item>
+        android:drawable="@color/color_blue"></item>
 
     <item android:drawable="@color/color_primary"></item>
 

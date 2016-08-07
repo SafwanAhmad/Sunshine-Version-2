@@ -270,6 +270,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 public void run() {
                     ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
 
+                    listView.setItemChecked(ListView.SCROLLBAR_POSITION_DEFAULT, true);
+
                     listView.performItemClick(listView,
                             ListView.SCROLLBAR_POSITION_DEFAULT,
                             listView.getItemIdAtPosition(ListView.SCROLLBAR_POSITION_DEFAULT));
