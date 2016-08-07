@@ -162,7 +162,39 @@ public class Utility {
 
     }
 
-    public static String getFormattedWind(Context context, float windSpeed, float degrees) {
+    private static String getFriendlyWindDirection(float degrees, boolean useAbb)
+    {
+        //From wind direction in degrees find out the compass based direction e.g NW
+        String direction = "Unknown";
+
+        if(degrees >= 337.5 || degrees < 22.5) {
+            direction = (useAbb == true ? "N" : "From North");
+        }
+        else if (degrees >= 22.5 && degrees < 67.5) {
+            direction = (useAbb == true ? "NE" : "From North-East");
+        }
+        else if (degrees >= 67.5 && degrees < 112.5) {
+            direction = (useAbb == true ? "E" : "From East");
+        }
+        else if (degrees >= 112.5 && degrees < 157.5) {
+            direction = (useAbb == true ? "SE" : "From South-East");
+        }
+        else if (degrees >= 157.5 && degrees < 202.5) {
+            direction = (useAbb == true ? "S" : "From South");
+        }
+        else if (degrees >= 202.5 && degrees < 247.5) {
+            direction = (useAbb == true ? "SW" : "From South-West");
+        }
+        else if (degrees >= 247.5 && degrees < 292.5) {
+            direction = (useAbb == true ? "W" : "From West");
+        }
+        else if (degrees >= 292.5 && degrees < 337.5) {
+            direction = (useAbb == true ? "NW" : "From North-West");
+        }
+        return  direction;
+    }
+
+    public static String getFormattedWind(Context context, float windSpeed, float degrees, boolean useAbb) {
 
         int windFormat;
         final float KPH_TO_MPH = 0.621371f;
@@ -177,34 +209,7 @@ public class Utility {
             windSpeed = KPH_TO_MPH * windSpeed;
         }
 
-        //From wind direction in degrees find out the compass based direction e.g NW
-        String direction = "Unknown";
-
-        if(degrees >= 337.5 || degrees < 22.5) {
-            direction = "N";
-        }
-        else if (degrees >= 22.5 && degrees < 67.5) {
-            direction = "NE";
-        }
-        else if (degrees >= 67.5 && degrees < 112.5) {
-            direction = "E";
-        }
-        else if (degrees >= 112.5 && degrees < 157.5) {
-            direction = "SE";
-        }
-        else if (degrees >= 157.5 && degrees < 202.5) {
-            direction = "S";
-        }
-        else if (degrees >= 202.5 && degrees < 247.5) {
-            direction = "SW";
-        }
-        else if (degrees >= 247.5 && degrees < 292.5) {
-            direction = "W";
-        }
-        else if (degrees >= 292.5 && degrees < 337.5) {
-            direction = "NW";
-        }
-        return context.getString(windFormat, windSpeed, direction);
+        return context.getString(windFormat, windSpeed, getFriendlyWindDirection(degrees, useAbb));
     }
 
 
