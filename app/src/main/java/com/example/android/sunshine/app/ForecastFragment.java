@@ -15,7 +15,10 @@
  */
 package com.example.android.sunshine.app;
 
+import android.app.AlarmManager;
 import android.app.Instrumentation;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -38,7 +41,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
 
 import com.example.android.sunshine.app.data.WeatherContract;
-
+import com.example.android.sunshine.app.service.SunshineService;
 
 
 /**
@@ -54,6 +57,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int lastSelectedIndex = ListView.INVALID_POSITION;
 
     private  boolean mUseTodayLayout;
+
+
+    //Used for updating weather data with the help of alarm and pending intents
+    private AlarmManager mUpdateWeatherAlarm;
+    private PendingIntent mUpdateWeatherIntent;
 
     //Notification callbacks
     public interface listItemClickedListener
@@ -203,12 +211,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = prefs.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
-        Log.d(LOG_TAG, "Updating weather for location " + location);
-        weatherTask.execute(location);
+
+        //Start a new service for this task. This is done via an explicit intent.
+        Intent intent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+
+        //Add the data required by the service
+        intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, Utility.getPreferredLocation(getActivity()));
+
+        mUpdateWeatherAlarm = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        mUpdateWeatherIntent = PendingIntent.getBroadcast(getActivity(),
+                0,
+                intent,
+                0);
+
+        //Set the alarm
+        mUpdateWeatherAlarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                (long) 5000,
+                mUpdateWeatherIntent);
+
     }
 
     public void onLocationChanged() {
