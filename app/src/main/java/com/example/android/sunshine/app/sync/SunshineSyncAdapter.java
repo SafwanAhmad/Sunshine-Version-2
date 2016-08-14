@@ -9,9 +9,11 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -34,14 +36,21 @@ import java.net.URL;
 import java.util.Vector;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
+
     public final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
+
+    public static final int MINS_IN_HOUR = 60;
+    public static final int SECS_IN_MIN = 60;
+    public static final int SYNC_INTERVAL = 3 * MINS_IN_HOUR * SECS_IN_MIN;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
 
     @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider,
+                              SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called.");
 
 
@@ -344,6 +353,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         return id;
     }
 
+
     /**
      * Helper method to have the sync adapter sync immediately
      * @param context The context used to access the account service
@@ -355,6 +365,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
     }
+
+
 
     /**
      * Helper method to get the fake account to be used with SyncAdapter, or make a new one
@@ -392,9 +404,68 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
              * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
-
+            onAccountCreated(newAccount, context);
         }
-
         return newAccount;
+    }
+
+
+    /**
+     * Helper method to schedule the sync adapter periodic execution
+     */
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime)
+    {
+        Account account = getSyncAccount(context);
+
+        String authority = context.getString(R.string.content_authority);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).
+                    setExtras(new Bundle()).build();
+
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, new Bundle(), syncInterval);
+        }
+    }
+
+
+    private static void onAccountCreated(Account newAccount, Context context) {
+        /*
+         * Since we've created an account
+         */
+        SunshineSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+
+        /*
+         * Finally, let's do a sync to get things started
+         */
+        syncImmediately(context);
+
+        /*
+         * Without calling setSyncAutomatically, our periodic sync will not be enabled.
+         */
+        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
+    }
+
+    /**
+     * This method is called from <code>MainActivity</code>. The control flow is as follows:
+     *
+     * 1) <code>MainActivity</code> is created and the sync adapter is initialized.
+     * 2) During initialization, <code>getSyncAccount</code> is called.
+     * 3) <code>getSyncAccount</code> will create a new account if no <code>sunshine.example.com</code>
+     *    account exists. If this is the case, <code>onAccountCreated</code> will be called.
+     * 4) <code>onAccountCreated</code> configures the periodic sync and calls for an immediate sync.
+     *    At this point, Sunshine will sync with the Open Weather API either every 3 hours (if the build version
+     *    is less than KitKat) or everyone 1 hour (if the build version is greater than or equal to KitKat)
+     *
+     * @param context The context used to access the account service
+     */
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 }

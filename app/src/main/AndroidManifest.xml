@@ -6,6 +6,14 @@
     <!-- This permission is necessary in order for Sunshine to perform network access. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--Permission required by the sync adapter -->
+    <uses-permission
+        android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission
+        android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -54,13 +62,6 @@
             android:name=".data.WeatherProvider"
             android:exported="false"
             android:syncable="true"/>
-
-        <!--Add the information about the service being used-->
-        <service android:name=".service.SunshineService"/>
-
-        <!--Register the AlarmReceiver component-->
-        <receiver android:name=".service.SunshineService$AlarmReceiver"
-            android:enabled="true"/>
 
 
 

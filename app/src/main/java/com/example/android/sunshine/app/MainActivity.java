@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+
 
 public class MainActivity extends ActionBarActivity implements ForecastFragment.listItemClickedListener {
 
@@ -77,6 +79,9 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
         //through assocaited fragment
         Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
         ((ForecastFragment)associatedFragment).setUseTodayLayout(!mTwoPane);
+
+        //Initialize the Sync Adapter
+        SunshineSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override

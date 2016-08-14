@@ -41,7 +41,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
 
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.service.SunshineService;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 
@@ -212,24 +211,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-
-        /*//Start a new service for this task. This is done via an explicit intent.
-        Intent intent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
-
-        //Add the data required by the service
-        intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, Utility.getPreferredLocation(getActivity()));
-
-        mUpdateWeatherAlarm = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        mUpdateWeatherIntent = PendingIntent.getBroadcast(getActivity(),
-                0,
-                intent,
-                0);
-
-        //Set the alarm
-        mUpdateWeatherAlarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                (long) 5000,
-                mUpdateWeatherIntent);*/
-
         SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
@@ -282,25 +263,34 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
 
             listView.smoothScrollToPosition(lastSelectedIndex);
+
+            //Also if two pane layout is supported then select the last item
+            if(!mUseTodayLayout) {
+                selectItemFromList(lastSelectedIndex);
+            }
         }
 
         //select the first element if two pane is supported and last state doesn't exist
         else if(!mUseTodayLayout) {
-
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
-
-                    listView.setItemChecked(ListView.SCROLLBAR_POSITION_DEFAULT, true);
-
-                    listView.performItemClick(listView,
-                            ListView.SCROLLBAR_POSITION_DEFAULT,
-                            listView.getItemIdAtPosition(ListView.SCROLLBAR_POSITION_DEFAULT));
-                }
-            });
-
+            selectItemFromList(ListView.SCROLLBAR_POSITION_DEFAULT);
         }
+    }
+
+    private void selectItemFromList(final int position)
+    {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
+
+                listView.setItemChecked(position, true);
+
+                listView.performItemClick(listView,
+                        position,
+                        listView.getItemIdAtPosition(position));
+            }
+        });
+
     }
 
     @Override
