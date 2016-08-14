@@ -42,6 +42,7 @@ import android.support.v4.content.CursorLoader;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.service.SunshineService;
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 
 /**
@@ -212,7 +213,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void updateWeather() {
 
-        //Start a new service for this task. This is done via an explicit intent.
+        /*//Start a new service for this task. This is done via an explicit intent.
         Intent intent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
 
         //Add the data required by the service
@@ -227,8 +228,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //Set the alarm
         mUpdateWeatherAlarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 (long) 5000,
-                mUpdateWeatherIntent);
+                mUpdateWeatherIntent);*/
 
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     public void onLocationChanged() {

@@ -44,11 +44,16 @@
                 android:value="com.example.android.sunshine.app.MainActivity" />
         </activity>
 
-        <!--Register Weather Provider class with the content authority-->
+        <!--Register Weather Provider class with the content authority.
+
+            android:exported="false" means that only our app can see our content provider.
+
+            android:syncable="true" means that this content provider will be synced with a server.-->
         <provider
-            android:authorities="com.example.android.sunshine.app"
+            android:authorities="@string/content_authority"
             android:name=".data.WeatherProvider"
-            android:exported="false"/>
+            android:exported="false"
+            android:syncable="true"/>
 
         <!--Add the information about the service being used-->
         <service android:name=".service.SunshineService"/>
@@ -56,6 +61,32 @@
         <!--Register the AlarmReceiver component-->
         <receiver android:name=".service.SunshineService$AlarmReceiver"
             android:enabled="true"/>
+
+
+
+        <!-- SyncAdapter's dummy authentication service -->
+        <service
+            android:name=".sync.SunshineAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+
+        <!-- The SyncAdapter service -->
+        <service
+            android:name=".sync.SunshineSyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
 
     </application>
 

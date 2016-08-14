@@ -87,4 +87,12 @@
     <string name="format_humidity">Humidity: <xliff:g id = "humidity">%1.0f</xliff:g> %%</string>
 
 
+
+    <!-- Account type (for sync-adapter authenticator) -->
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">sunshine.example.com</string>
+    <string name="content_authority">com.example.android.sunshine.app</string>
+
+
+
 </resources>
