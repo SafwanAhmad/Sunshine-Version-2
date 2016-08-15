@@ -39,6 +39,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
+import android.widget.Toast;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
@@ -139,8 +140,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         if (id == R.id.action_refresh) {
             updateWeather();
+            return true;
+        }
+
+        if (id == R.id.action_map) {
+            openPreferredLocationInMap();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -178,7 +185,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
 
-                if (cursor != null && cursor.getCount() != 0 ){
+                if (cursor != null && cursor.getCount() != 0) {
 
                     Uri weatherWithDate = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             cursor.getString(COL_LOCATION_SETTING), cursor.getLong(COL_WEATHER_DATE));
@@ -208,6 +215,35 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    private void openPreferredLocationInMap() {
+
+        if(mForecastAdapter != null) {
+            Cursor cursor = mForecastAdapter.getCursor();
+
+            if (cursor.moveToFirst()) {
+                double longitude = cursor.getDouble(cursor.getColumnIndex(WeatherContract.LocationEntry.COLUMN_COORD_LONG));
+                double latitude = cursor.getDouble(cursor.getColumnIndex(WeatherContract.LocationEntry.COLUMN_COORD_LAT));
+
+                // Using the URI scheme for showing a location found on a map.  This super-handy
+                // intent can is detailed in the "Common Intents" page of Android's developer site:
+                // http://developer.android.com/guide/components/intents-common.html#Maps
+                Uri geoLocation = Uri.parse("geo:" + latitude + "," + longitude);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoLocation);
+
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Log.d(LOG_TAG, "Couldn't show " + longitude + "," + latitude + ", no receiving apps installed!");
+                }
+            } else {
+                Toast mapToast = Toast.makeText(getActivity(), "No Coordinates received!", Toast.LENGTH_SHORT);
+                mapToast.show();
+            }
+        }
     }
 
     private void updateWeather() {
