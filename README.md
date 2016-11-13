@@ -14,3 +14,8 @@ This is the second version of the Sunshine code. The repository has been updated
 For the original version, please go [here](https://github.com/udacity/Sunshine).
 
 A changelog for the course can be found [here](https://docs.google.com/a/knowlabs.com/document/d/193xJb_OpcNCqgquMhxPrMh05IEYFXQqt0S6-6YK8gBw/pub).
+
+Adding API Key
+==============
+
+In order to use the application you first make an account on [Open Weather Map](https://openweathermap.org/api).Then signIn in the account and under the API keys tab you can find the key. Now go to the android project and add this key inside build.gradle for the app.
