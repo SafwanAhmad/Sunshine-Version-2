@@ -16,33 +16,31 @@
 package com.example.android.sunshine.app;
 
 import android.app.AlarmManager;
-import android.app.Instrumentation;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.content.CursorLoader;
 import android.widget.Toast;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+
+;
 
 
 /**
