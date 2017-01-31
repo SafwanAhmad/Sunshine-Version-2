@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.support.v4.app.TaskStackBuilder;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -20,7 +19,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -29,7 +30,6 @@ import com.example.android.sunshine.app.MainActivity;
 import com.example.android.sunshine.app.R;
 import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.data.WeatherDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,10 +39,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Vector;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
@@ -55,10 +55,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
 
-
     //Notification data will be pulled from database, and these are the projection
     //for the query and column indices values
-    private static final String[] NOTIFY_WEATHER_PROJECTION = { WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+    private static final String[] NOTIFY_WEATHER_PROJECTION = {WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC
@@ -78,6 +77,17 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
 
+    // Annotations to be used to share status of data unavailability
+    // this could be because there is some problem at server side.
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_DOWN, LOCATION_STATUS_INVALID, LOCATION_STATUS_UNKNOWN})
+    @interface LocationStatus {
+    }
+
+    public static final int LOCATION_STATUS_OK = 0;
+    public static final int LOCATION_STATUS_DOWN = 1;
+    public static final int LOCATION_STATUS_INVALID = 2;
+    public static final int LOCATION_STATUS_UNKNOWN = 3;
 
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
@@ -188,7 +198,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
-     *
+     * <p>
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
@@ -261,7 +271,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             // now we work exclusively in UTC
             dayTime = new Time();
 
-            for(int i = 0; i < weatherArray.length(); i++) {
+            for (int i = 0; i < weatherArray.length(); i++) {
                 // These are the values that will be collected.
                 long dateTime;
                 double pressure;
@@ -279,7 +289,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
                 // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
+                dateTime = dayTime.setJulianDay(julianStartDay + i);
 
                 pressure = dayForecast.getDouble(OWM_PRESSURE);
                 humidity = dayForecast.getInt(OWM_HUMIDITY);
@@ -316,11 +326,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             // add to database
-            if ( cVVector.size() > 0 ) {
+            if (cVVector.size() > 0) {
                 // Student: call bulkInsert to add the weatherEntries to the database here
                 ContentValues[] contentValues = new ContentValues[cVVector.size()];
                 cVVector.toArray(contentValues);
-                getContext().getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI,contentValues);
+                getContext().getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, contentValues);
             }
 
             //Delete the old weather data
@@ -334,14 +344,13 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
 
-
     /**
      * Helper method to handle insertion of a new location in the weather database.
      *
      * @param locationSetting The location string used to request updates from the server.
-     * @param cityName A human-readable city name, e.g "Mountain View"
-     * @param lat the latitude of the city
-     * @param lon the longitude of the city
+     * @param cityName        A human-readable city name, e.g "Mountain View"
+     * @param lat             the latitude of the city
+     * @param lon             the longitude of the city
      * @return the row ID of the added location.
      */
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
@@ -362,8 +371,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 new String[]{locationSetting},
                 null);
 
-        if(c.moveToFirst())
-        {
+        if (c.moveToFirst()) {
             id = c.getLong(c.getColumnIndex(WeatherContract.LocationEntry._ID));
         }
 
@@ -374,10 +382,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             ContentValues values = new ContentValues();
 
             //Add the data to values
-            values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME,cityName);
-            values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,locationSetting);
-            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG,lon);
-            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT,lat);
+            values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
 
             //Insert the data into database using content resolver
             Uri insertedUri = getContext().getContentResolver().insert(
@@ -398,6 +406,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     /**
      * Helper method to have the sync adapter sync immediately
+     *
      * @param context The context used to access the account service
      */
     public static void syncImmediately(Context context) {
@@ -407,7 +416,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
     }
-
 
 
     /**
@@ -431,7 +439,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         //AccountManagerFuture<Bundle> bundle = accountManager.getAuthToken(newAccount, AccountManager.KEY_AUTH_TOKEN_LABEL, null, null, null, null);
 
         // If the password doesn't exist, the account doesn't exist
-        if ( null == accountManager.getPassword(newAccount) ) {
+        if (null == accountManager.getPassword(newAccount)) {
 
         /*
          * Add the account and account type, no password or user data
@@ -455,14 +463,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Helper method to schedule the sync adapter periodic execution
      */
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime)
-    {
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
         Account account = getSyncAccount(context);
 
         String authority = context.getString(R.string.content_authority);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // we can enable inexact timers in our periodic sync
             SyncRequest request = new SyncRequest.Builder().
                     syncPeriodic(syncInterval, flexTime).
@@ -496,14 +502,14 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     /**
      * This method is called from <code>MainActivity</code>. The control flow is as follows:
-     *
+     * <p>
      * 1) <code>MainActivity</code> is created and the sync adapter is initialized.
      * 2) During initialization, <code>getSyncAccount</code> is called.
      * 3) <code>getSyncAccount</code> will create a new account if no <code>sunshine.example.com</code>
-     *    account exists. If this is the case, <code>onAccountCreated</code> will be called.
+     * account exists. If this is the case, <code>onAccountCreated</code> will be called.
      * 4) <code>onAccountCreated</code> configures the periodic sync and calls for an immediate sync.
-     *    At this point, Sunshine will sync with the Open Weather API either every 3 hours (if the build version
-     *    is less than KitKat) or everyone 1 hour (if the build version is greater than or equal to KitKat)
+     * At this point, Sunshine will sync with the Open Weather API either every 3 hours (if the build version
+     * is less than KitKat) or everyone 1 hour (if the build version is greater than or equal to KitKat)
      *
      * @param context The context used to access the account service
      */
@@ -531,7 +537,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         // If the last notification was sent a day before and notifications
         // are turned on for the app then let's send a new notification
 
-        if ( (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) &&
+        if ((System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) &&
                 (notificationStatus)) {
 
             //1) Take out the current location setting
@@ -553,7 +559,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             );
 
             //4) Check if there is some data in the cursor
-            if(cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 //Take out the weather data from cursor
                 int weatherId = cursor.getInt(INDEX_WEATHER_ID);
                 double high = cursor.getDouble(INDEX_MAX_TEMP);
@@ -573,7 +579,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 String contentText = String.format(
                         currentContext.getString(R.string.format_notification),
                         desc,
-                        Utility.formatTemperature(currentContext,high, Utility.isMetric(currentContext)),
+                        Utility.formatTemperature(currentContext, high, Utility.isMetric(currentContext)),
                         Utility.formatTemperature(currentContext, low, Utility.isMetric(currentContext)));
 
 
@@ -604,7 +610,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 //Get the notification manager service
                 Object object = currentContext.getSystemService(Context.NOTIFICATION_SERVICE);
-                NotificationManager notificationManager = (NotificationManager)object;
+                NotificationManager notificationManager = (NotificationManager) object;
 
                 notificationManager.notify(WEATHER_NOTIFICATION_ID,
                         builder.build());
@@ -620,8 +626,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     //This method will delete all weather data that is older than today
 
-    private void deleteOldData(int julianStartDay, Time dayTime)
-    {
+    private void deleteOldData(int julianStartDay, Time dayTime) {
         //Create Uri for weather table
         Uri weatherUri = WeatherContract.WeatherEntry.CONTENT_URI;
 
