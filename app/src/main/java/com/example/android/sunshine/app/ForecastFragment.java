@@ -17,8 +17,11 @@ package com.example.android.sunshine.app;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.sunshine.app.data.WeatherContract;
@@ -46,7 +50,7 @@ import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ForecastAdapter mForecastAdapter;
     private final int loaderId = 0;
@@ -55,7 +59,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private int lastSelectedIndex = ListView.INVALID_POSITION;
 
-    private  boolean mUseTodayLayout;
+    private boolean mUseTodayLayout;
 
 
     //Used for updating weather data with the help of alarm and pending intents
@@ -63,8 +67,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private PendingIntent mUpdateWeatherIntent;
 
     //Notification callbacks
-    public interface listItemClickedListener
-    {
+    public interface listItemClickedListener {
         public void onListItemClicked(Uri uriWithDate);
     }
 
@@ -103,12 +106,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     //Setter for mUseTodayLayout
-    public void setUseTodayLayout(boolean useTodayLayout)
-    {
+    public void setUseTodayLayout(boolean useTodayLayout) {
         mUseTodayLayout = useTodayLayout;
 
-        if(mForecastAdapter != null)
-        {
+        if (mForecastAdapter != null) {
             mForecastAdapter.setTodayViewSpecial(mUseTodayLayout);
         }
     }
@@ -155,8 +156,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(LAST_SELECTED_INDEX_KEY))
-        {
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAST_SELECTED_INDEX_KEY)) {
             lastSelectedIndex = savedInstanceState.getInt(LAST_SELECTED_INDEX_KEY);
         }
 
@@ -211,8 +211,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(lastSelectedIndex != ListView.INVALID_POSITION)
-            outState.putInt(LAST_SELECTED_INDEX_KEY,lastSelectedIndex);
+        if (lastSelectedIndex != ListView.INVALID_POSITION)
+            outState.putInt(LAST_SELECTED_INDEX_KEY, lastSelectedIndex);
     }
 
 
@@ -223,7 +223,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void openPreferredLocationInMap() {
 
-        if(mForecastAdapter != null) {
+        if (mForecastAdapter != null) {
             Cursor cursor = mForecastAdapter.getCursor();
 
             if (cursor.moveToFirst()) {
@@ -262,8 +262,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         getLoaderManager().restartLoader(loaderId, null, this);
     }
 
-    public void onUnitChanged()
-    {
+    public void onUnitChanged() {
         mForecastAdapter.notifyDataSetChanged();
     }
 
@@ -293,31 +292,47 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //Update the adapter
-        mForecastAdapter.swapCursor(data);
+        //Check if the cursor is empty
+        if (data.getCount() == 0) {
+            //Check network status
+            ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        //If there is some item in the list that was selected before then scroll to it
-        if(lastSelectedIndex != ListView.INVALID_POSITION) {
-            //Restore to last scrolled position
-            // Get a reference to the ListView, and attach this adapter to it.
-            ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            boolean isConnected = (networkInfo != null && networkInfo.isConnectedOrConnecting());
 
-            listView.smoothScrollToPosition(lastSelectedIndex);
+            if (!isConnected) {
+                TextView emptyView = (TextView) getView().findViewById(R.id.listview_forecast_empty);
+                emptyView.setText(getString(R.string.no_weather_information) + "\n"+
+                        getString(R.string.no_network_available));
+            }
+        } else {
+            //Update the adapter
+            mForecastAdapter.swapCursor(data);
 
-            //Also if two pane layout is supported then select the last item
-            if(!mUseTodayLayout) {
-                selectItemFromList(lastSelectedIndex);
+            //If there is some item in the list that was selected before then scroll to it
+            if (lastSelectedIndex != ListView.INVALID_POSITION) {
+                //Restore to last scrolled position
+                // Get a reference to the ListView, and attach this adapter to it.
+                ListView listView = (ListView) getActivity().findViewById(R.id.listview_forecast);
+
+                listView.smoothScrollToPosition(lastSelectedIndex);
+
+                //Also if two pane layout is supported then select the last item
+                if (!mUseTodayLayout) {
+                    selectItemFromList(lastSelectedIndex);
+                }
+            }
+
+            //select the first element if two pane is supported and last state doesn't exist
+            else if (!mUseTodayLayout) {
+                selectItemFromList(ListView.SCROLLBAR_POSITION_DEFAULT);
             }
         }
 
-        //select the first element if two pane is supported and last state doesn't exist
-        else if(!mUseTodayLayout) {
-            selectItemFromList(ListView.SCROLLBAR_POSITION_DEFAULT);
-        }
     }
 
-    private void selectItemFromList(final int position)
-    {
+    private void selectItemFromList(final int position) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {

@@ -111,6 +111,8 @@
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
     <!--String to display when no weather data is available -->
-    <string name="no_weather_information">No Weather Information Available</string>
+    <string name="no_weather_information">No Weather Information Available.</string>
+    <!--String to display when no network is available-->
+    <string name="no_network_available">The network is not available to fetch data.</string>
 
 </resources>
