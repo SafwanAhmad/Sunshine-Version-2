@@ -56,6 +56,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mWindView;
     private TextView mPressureView;
     private WindVane mWindVaneView;
+    private ImageView mCompassView;
 
     //Projection string used to select the required columns from the table
     private static final String [] FORECAST_COLUMNS = {
@@ -108,6 +109,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mPressureView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
         mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
         mWindVaneView = (WindVane) rootView.findViewById(R.id.detail_wind_vane_view);
+        mCompassView = (ImageView) rootView.findViewById(R.id.detail_compass_view);
         return rootView;
     }
 
@@ -228,6 +230,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
 
             //Update the wind direction information in WindVane
+            mCompassView.setVisibility(View.VISIBLE);
+            mWindVaneView.setVisibility((View.VISIBLE));
             mWindVaneView.setVaneDirection(degrees, Utility.getFormattedWind(getActivity(), speed, degrees, false));
 
             mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees, true));
