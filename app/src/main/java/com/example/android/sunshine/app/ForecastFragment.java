@@ -168,6 +168,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+
+        //Get the reference of the view used when no weather information is available.
+        View emptyView = rootView.findViewById(R.id.listview_forecast_empty);
+        //Set it as the empty view
+        listView.setEmptyView(emptyView);
+
         listView.setAdapter(mForecastAdapter);
 
 

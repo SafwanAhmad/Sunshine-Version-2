@@ -10,4 +10,14 @@
         android:layout_height="match_parent"
         style="@style/ForecastListStyle"/>
 
+    <!--This sibling view for list view is used to be set as an empty view
+        while no weather information is available. It can be set with the
+        help of setEmptyView method-->
+    <TextView
+        android:id="@+id/listview_forecast_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/no_weather_information"
+        android:gravity="center_horizontal"/>
+
 </FrameLayout>

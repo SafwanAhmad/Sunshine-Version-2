@@ -110,4 +110,7 @@
     <string name="pref_enable_notifications_false">Not Enabled</string>
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
+    <!--String to display when no weather data is available -->
+    <string name="no_weather_information">No Weather Information Available</string>
+
 </resources>
