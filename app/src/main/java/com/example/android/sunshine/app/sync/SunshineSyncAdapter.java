@@ -80,15 +80,30 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     // Annotations to be used to share status of data unavailability
     // this could be because there is some problem at server side.
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_DOWN, LOCATION_STATUS_INVALID, LOCATION_STATUS_UNKNOWN})
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN})
     @interface LocationStatus {
     }
 
     public static final int LOCATION_STATUS_OK = 0;
-    public static final int LOCATION_STATUS_DOWN = 1;
-    public static final int LOCATION_STATUS_INVALID = 2;
+    public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+    public static final int LOCATION_STATUS_SERVER_INVALID = 2;
     public static final int LOCATION_STATUS_UNKNOWN = 3;
 
+    /**
+     * Method to set the location status inside shared preferences.
+     *
+     * @param status
+     * @param context
+     */
+    private static void setLocationStatus(@LocationStatus int status, Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        //We need an Editor object to make preference changes.
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt(context.getString(R.string.key_location_status), status);
+        //Don't forget to commit
+        editor.commit();
+    }
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -162,6 +177,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
+                //Set the status corresponding to server down
+                setLocationStatus(LOCATION_STATUS_SERVER_DOWN, getContext());
                 return;
             }
             forecastJsonStr = buffer.toString();
@@ -175,10 +192,13 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
-            return;
+            //Set the status corresponding to server down
+            setLocationStatus(LOCATION_STATUS_SERVER_DOWN, getContext());
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+            //Set the status corresponding to server invalid
+            setLocationStatus(LOCATION_STATUS_SERVER_INVALID, getContext());
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -336,10 +356,13 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             //Delete the old weather data
             deleteOldData(julianStartDay, dayTime);
 
+            //Everything seems good, update the location status also
+            setLocationStatus(LOCATION_STATUS_OK, getContext());
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+            throw e;
         }
     }
 

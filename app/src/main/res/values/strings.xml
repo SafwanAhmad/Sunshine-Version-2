@@ -115,4 +115,7 @@
     <!--String to display when no network is available-->
     <string name="no_network_available">The network is not available to fetch data.</string>
 
+    <!--String used as a key for shared preferences for storing the result of last sync operation-->
+    <string name="key_location_status">location-status</string>
+
 </resources>
