@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
-import android.widget.ImageView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -94,11 +93,11 @@ public class Utility {
 
             int formatId = R.string.format_full_friendly_date;
 
-            return String.format(context.getString(
+            return context.getString(
                     formatId,
                     today,
                     getFormattedMonthDay(context,dateInMilliseconds)
-            ));
+            );
         }
         //If the input date is less than a week in future just return the day name
         else if(julianDay < currentJulianDay + 7) {
