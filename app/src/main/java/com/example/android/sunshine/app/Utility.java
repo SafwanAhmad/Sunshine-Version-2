@@ -292,12 +292,13 @@ public class Utility {
      * @param context Current context.
      * @return A constant int value representing status code for server.
      */
-    public static int getLocationStatus(Context context) {
+    @SuppressWarnings("ResourceType")
+    public static @SunshineSyncAdapter.LocationStatus int getLocationStatus(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         int status = preferences.getInt(
                 context.getString(
                         R.string.key_location_status),
-                SunshineSyncAdapter.LOCATION_STATUS_OK);
+                SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
         return status;
     }
 }
