@@ -81,7 +81,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     // this could be because there is some problem at server side.
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN})
-    @interface LocationStatus {
+    public @interface LocationStatus {
     }
 
     public static final int LOCATION_STATUS_OK = 0;
@@ -92,8 +92,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Method to set the location status inside shared preferences.
      *
-     * @param status
-     * @param context
+     * @param status One of the constants defined for status
+     * @param context Current context.
      */
     private static void setLocationStatus(@LocationStatus int status, Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

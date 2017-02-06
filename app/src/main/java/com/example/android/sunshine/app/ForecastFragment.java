@@ -19,12 +19,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -50,7 +52,9 @@ import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener
+{
 
     private ForecastAdapter mForecastAdapter;
     private final int loaderId = 0;
@@ -294,18 +298,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         //Check if the cursor is empty
         if (data.getCount() == 0) {
-            //Check network status
-            ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            boolean isConnected = (networkInfo != null && networkInfo.isConnectedOrConnecting());
-
-            if (!isConnected) {
-                TextView emptyView = (TextView) getView().findViewById(R.id.listview_forecast_empty);
-                emptyView.setText(getString(R.string.no_weather_information) + "\n"+
-                        getString(R.string.no_network_available));
-            }
+            updateEmptyView();
         } else {
             //Update the adapter
             mForecastAdapter.swapCursor(data);
@@ -351,5 +344,70 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        //If the change is preference corresponding to server location status
+        if (key.equals(getString(R.string.key_location_status))) {
+            //We should update the status inside empty view
+            updateEmptyView();
+        }
+
+    }
+
+    //Register for changes in shared preferences.
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    //Unregister from lister list for shared preferences.
+    @Override
+    public void onPause() {
+        super.onPause();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    //Helper method to update the empty view text in case of failure at server end or network is not
+    //available.
+    private void updateEmptyView() {
+
+        //Get the text view
+        TextView emptyView = (TextView) getView().findViewById(R.id.listview_forecast_empty);
+        if (emptyView != null) {
+
+            int message = R.string.no_weather_information;
+
+            //Check for location status, if server is in good state or not.
+            @SunshineSyncAdapter.LocationStatus int statusCode = Utility.getLocationStatus(getActivity());
+
+            switch (statusCode)
+            {
+                case SunshineSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
+                    message = R.string.empty_forecast_list_server_down;
+                    break;
+
+                case SunshineSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
+                    message = R.string.empty_forecast_list_server_error;
+                    break;
+
+                default:
+                    //Check network status
+                    ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
+                            .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                    NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                    boolean isConnected = (networkInfo != null && networkInfo.isConnectedOrConnecting());
+
+                    if (!isConnected) {
+                        message = R.string.no_network_available;
+                    }
+            }
+            emptyView.setText(message);
+        }
     }
 }

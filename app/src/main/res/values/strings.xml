@@ -60,12 +60,6 @@
     <string name="format_full_friendly_date"><xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
 
 
-
-
-
-
-
-
     <!--Strings for fomatting weather related data-->
 
     <!--Temperature format [CHAR LIMIT = 5] -->
@@ -74,18 +68,17 @@
     <!--Wind speed format-->
     <!--Wind in mph [CHAR LIMIT=25] -->
     <string name="format_wind_mph">Wind: <xliff:g id="speed">%1$1.0f</xliff:g>mph
-    <xliff:g id = "direction">%2$s</xliff:g></string>
+    <xliff:g id="direction">%2$s</xliff:g></string>
 
     <!--Wind in kph [CHAR LIMIT=25] -->
-    <string name="format_wind_kph">Wind: <xliff:g id = "speed">%1$1.0f</xliff:g>km/h
-    <xliff:g id = "direction">%2$s</xliff:g></string>
-    
+    <string name="format_wind_kph">Wind: <xliff:g id="speed">%1$1.0f</xliff:g>km/h
+    <xliff:g id="direction">%2$s</xliff:g></string>
+
     <!--Pressure format [CHAR LIMIT=25] -->
-    <string name="format_pressure">Pressure: <xliff:g id = "pressure">%1.0f</xliff:g> hPa</string>
+    <string name="format_pressure">Pressure: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
 
     <!--Humidity format [CHAR LIMIT=25] -->
-    <string name="format_humidity">Humidity: <xliff:g id = "humidity">%1.0f</xliff:g> %%</string>
-
+    <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
 
 
     <!-- Account type (for sync-adapter authenticator) -->
@@ -113,9 +106,12 @@
     <!--String to display when no weather data is available -->
     <string name="no_weather_information">No Weather Information Available.</string>
     <!--String to display when no network is available-->
-    <string name="no_network_available">The network is not available to fetch data.</string>
+    <string name="no_network_available">No Weather Information Available. The network is not available to fetch data.</string>
 
     <!--String used as a key for shared preferences for storing the result of last sync operation-->
     <string name="key_location_status">location-status</string>
 
+    <!--Strings representing information corresponding to different server status-->
+    <string name="empty_forecast_list_server_down">No weather information available. The server is not returning data.</string>
+    <string name="empty_forecast_list_server_error">No weather information available. The server is not returning valid data. Please check for an updated version of Sunshine.</string>
 </resources>

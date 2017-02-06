@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -280,5 +282,22 @@ public class Utility {
             return R.drawable.art_clouds;
         }
         return -1;
+    }
+
+    /**
+     * Helper method to fetch the status code for server. This is saved inside <code>{@link SunshineSyncAdapter}</code>
+     * based on the type of issue with the server.
+     * The status code is one of the codes defined inside <code>{@link SunshineSyncAdapter}</code>.
+     *
+     * @param context Current context.
+     * @return A constant int value representing status code for server.
+     */
+    public static int getLocationStatus(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int status = preferences.getInt(
+                context.getString(
+                        R.string.key_location_status),
+                SunshineSyncAdapter.LOCATION_STATUS_OK);
+        return status;
     }
 }
