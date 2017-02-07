@@ -68,6 +68,11 @@ public class SettingsActivity extends PreferenceActivity
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
+        //Check if the update is for location preference, then reset the location status
+        //(server status) to unknown.
+        if (preference.equals(findPreference(getString(R.string.pref_location_key)))) {
+            Utility.resetLocationStatus(preference.getContext());
+        }
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list (since they have separate labels/values).
