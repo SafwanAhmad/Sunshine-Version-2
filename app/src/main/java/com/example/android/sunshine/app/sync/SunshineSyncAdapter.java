@@ -80,14 +80,26 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     // Annotations to be used to share status of data unavailability
     // this could be because there is some problem at server side.
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN})
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID,
+            LOCATION_STATUS_UNKNOWN, LOCATION_STATUS_INVALID})
     public @interface LocationStatus {
     }
 
     public static final int LOCATION_STATUS_OK = 0;
+
+    //This happens when server is down or length of response is zero or
+    //http error code other than 200 or 404
     public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+
+    //This value is used when server is malfunctioned as returning a different
+    // JSON structure
     public static final int LOCATION_STATUS_SERVER_INVALID = 2;
+
+    //We don't know anything about the status
     public static final int LOCATION_STATUS_UNKNOWN = 3;
+
+    //Server responded with error code 404
+    public static final int LOCATION_STATUS_INVALID = 4;
 
     /**
      * Method to set the location status inside shared preferences.
@@ -158,8 +170,19 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
+            // Read the input stream into a String, but first check if server
+            // returned an error stream instead of input stream. OpenWeather Map
+            // API is returning error stream in case of a location is not found,
+            // so performing getInputStream will throw error FileNotFoundException.
+            // Hence we check if response code is not equal to HTTP_OK.
+            InputStream inputStream = null;
+
+            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                inputStream = urlConnection.getErrorStream();
+            } else {
+                inputStream = urlConnection.getInputStream();
+            }
+
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
@@ -230,7 +253,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         // Fortunately parsing is easy:  constructor takes the JSON string and converts it
         // into an Object hierarchy for us.
 
-        // These are the names of the JSON objects that need to be extracted.
+        // These are the names of the JSON objects that need to be extracted. OWM stands for
+        //Open Weather Map
 
         // Location information
         final String OWM_CITY = "city";
@@ -258,8 +282,38 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         final String OWM_DESCRIPTION = "main";
         final String OWM_WEATHER_ID = "id";
 
+        //Http error information
+        final String OWM_MESSAGE_CODE = "cod";
+
         try {
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
+
+            //Search for the http error code
+            if(forecastJson.has(OWM_MESSAGE_CODE))
+            {
+                int errorCode = forecastJson.getInt(OWM_MESSAGE_CODE);
+
+                switch (errorCode) {
+                    case HttpURLConnection.HTTP_OK:
+                        break;
+
+                    //In this case the server response has a http not found error code
+                    //This is different from server returning an invalid JSON, where
+                    //we set the location status to LOCATION_STATUS_SERVER_INVALID
+                    //Open Weather Map API is not returning 404, instead it is returning
+                    //502.
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                    case HttpURLConnection.HTTP_BAD_GATEWAY:
+                        setLocationStatus(LOCATION_STATUS_INVALID, getContext());
+                        return;
+
+                    //For all other type of http errors we set the location status to
+                    //LOCATION_STATUS_SERVER_DOWN
+                    default:
+                        setLocationStatus(LOCATION_STATUS_SERVER_DOWN, getContext());
+                        return;
+                }
+            }
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             JSONObject cityJson = forecastJson.getJSONObject(OWM_CITY);
