@@ -301,4 +301,20 @@ public class Utility {
                 SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
         return status;
     }
+
+    /**
+     * Helper method to reset the location status for server to unknown. This method is called
+     * from {@link SettingsActivity} when there is a change in the location setting.
+     * @param context Current context.
+     */
+    public static void resetLocationStatus(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        //We need an Editor object to make preference changes.
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt(context.getString(R.string.key_location_status),
+                SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+
+        editor.apply();
+    }
 }
