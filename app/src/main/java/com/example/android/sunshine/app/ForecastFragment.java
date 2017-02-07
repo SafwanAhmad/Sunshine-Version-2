@@ -262,7 +262,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //Perform weather updation based on the new location setting
         updateWeather();
 
-        //Restart the loader
+        //Restart the loader, this will update the URI also
         getLoaderManager().restartLoader(loaderId, null, this);
     }
 
@@ -274,6 +274,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
+        //TODO Need a fix to make sure the value is not null
         String locationSetting = Utility.getPreferredLocation(getActivity());
 
         //Sort order: Ascending by date
@@ -393,6 +394,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
                 case SunshineSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
                     message = R.string.empty_forecast_list_server_error;
+                    break;
+
+                case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                    message = R.string.empty_forecast_list_invalid_location;
                     break;
 
                 default:
