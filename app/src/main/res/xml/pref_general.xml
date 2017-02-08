@@ -11,7 +11,7 @@
         android:defaultValue="@string/pref_location_default"
         android:inputType="text"
         android:singleLine="true"
-        custom:minLength="3"/>
+        custom:minLength="5"/>
 
     <ListPreference
         android:title="@string/pref_units_label"
