@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--This file is used to define custom attributes for custom views.
+    More information can be found at the following link:
+    https://developer.android.com/training/custom-views/create-view.html-->
+<resources>
+    <declare-styleable name="LocationEditTextPreference">
+        <attr name="minLength" format="integer"/>
+    </declare-styleable>
+</resources>
