@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.sunshine.app.data.WeatherContract;
-
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
  * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
@@ -158,9 +156,11 @@ public class ForecastAdapter extends CursorAdapter {
 
         //Find the forecast(description) from the cursor
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
-
         //Set the text for this view
         viewHolder.descriptionView.setText(description);
+        //Set the content description. We don't set description for icon, as this description is already
+        //providing enough information.
+        viewHolder.descriptionView.setContentDescription(context.getString(R.string.a11y_forecast, description));
 
 
         //For the temperature we need user preference for unit(metric/imperial)
@@ -170,13 +170,21 @@ public class ForecastAdapter extends CursorAdapter {
         double temperatureMax = cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP);
 
         //Set the max temperature
-        viewHolder.temperatureMaxView.setText(Utility.formatTemperature(context,temperatureMax,isMetric));
+        String high = Utility.formatTemperature(context, temperatureMax, isMetric);
+        viewHolder.temperatureMaxView.setText(high);
+        //Set the content description
+        viewHolder.temperatureMaxView.setContentDescription(
+                context.getString(R.string.a11y_temp_high,high));
 
         //Find the low(Min) temperature from cursor
         double temperatureMin = cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP);
 
         //Set the min temperature
-        viewHolder.temperatureMinView.setText(Utility.formatTemperature(context,temperatureMin,isMetric));
+        String low = Utility.formatTemperature(context, temperatureMin, isMetric);
+        viewHolder.temperatureMinView.setText(low);
+        //Set the content description
+        viewHolder.temperatureMinView.setContentDescription(
+                context.getString(R.string.a11y_temp_low, low));
 
     }
 }

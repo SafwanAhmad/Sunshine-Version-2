@@ -205,6 +205,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mHighTempView.setText(Utility.formatTemperature(getActivity(), maxTemp, isMetric));
             mLowTempView.setText(Utility.formatTemperature(getActivity(), minTemp, isMetric));
 
+            //Also set content description for both high and low temperatures
+            mHighTempView.setContentDescription(getString(R.string.a11y_temp_high, mHighTempView.getText()));
+            mLowTempView.setContentDescription(getString(R.string.a11y_temp_low, mLowTempView.getText()));
+
             //Set the icon
             int weatherId = data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
             //Get the appropriate icon id
@@ -214,10 +218,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             //Set the description of weather
             String description = data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
-            mDescriptionView.setText(description);
+            mDescriptionView.setText(getString(R.string.a11y_forecast, description));
 
             //Also update the content description for the image view
-            mIconView.setContentDescription(description);
+            // For accessibility, add a content description to the icon field. Because the ImageView
+            // is independently focusable, it's better to have a description of the image. Using
+            // null is appropriate when the image is purely decorative or when the image already
+            // has text describing it in the same UI component.
+            mIconView.setContentDescription(getString(R.string.a11y_forecast_icon, description));
 
 
             //Set the humidity
@@ -235,6 +243,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mWindVaneView.setVaneDirection(degrees, Utility.getFormattedWind(getActivity(), speed, degrees, false));
 
             mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees, true));
+            //Set the content description
+            mWindView.setContentDescription(Utility.getFormattedWind(getActivity(), speed, degrees, false));
 
             //Set the pressure
             float pressure = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
