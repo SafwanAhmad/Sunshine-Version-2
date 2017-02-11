@@ -3,7 +3,6 @@ package com.example.android.sunshine.app;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -68,7 +67,7 @@ public class LocationEditTextPreference extends EditTextPreference {
 
             //But we must ensure that the associated dialog belongs to alert dialog.
             if (dialog instanceof AlertDialog) {
-                positive = ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE);
+                positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
             }
 
             if (positive != null) {
