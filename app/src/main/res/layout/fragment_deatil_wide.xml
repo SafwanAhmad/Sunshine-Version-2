@@ -25,13 +25,16 @@
             android:orientation="vertical"
             android:minWidth="56dp">
 
+            <!--Add layout_gravity and textAlignment for RTL support-->
             <TextView
                 android:id="@+id/detail_day_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minWidth="120dp"
-                android:textSize="24sp"/>
+                android:textSize="24sp"
+                android:gravity="start|left"
+                android:textAlignment="viewStart"/>
 
             <TextView
                 android:id="@+id/detail_date_textview"
@@ -39,7 +42,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:textSize="20sp"
-                android:textColor="#646464"/>
+                android:textColor="#646464"
+                android:gravity="start|left"
+                android:textAlignment="viewStart"/>
 
         </LinearLayout>
 
@@ -105,7 +110,7 @@
                     android:layout_alignRight="@id/detail_compass_view"
                     android:layout_alignTop="@id/detail_compass_view"
                     android:layout_marginLeft="25dp"
-                    android:layout_marginTop="27dp"
+                    android:layout_marginTop="28dp"
                     android:visibility="invisible"/>
 
             </RelativeLayout>
