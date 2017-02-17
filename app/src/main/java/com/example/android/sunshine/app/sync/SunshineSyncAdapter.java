@@ -2,6 +2,7 @@ package com.example.android.sunshine.app.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -14,7 +15,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +29,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.BuildConfig;
 import com.example.android.sunshine.app.MainActivity;
 import com.example.android.sunshine.app.R;
@@ -44,6 +49,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -646,8 +652,46 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 //Close the cursor
                 cursor.close();
 
-                //Take out the icon corresponding to this weather
+                //Take out the icon corresponding to this weather (small icon)
                 int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+                //Take out the resources
+                Resources resources = currentContext.getResources();
+
+                //Find id for the large icon (used as back up)
+                int resourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+                //Find out the url to be used to get the icon (art resource)
+                String artUrl = Utility.getArtUrlForWeatherCondition(currentContext, weatherId);
+
+                // On Honeycomb and higher devices, we can retrieve the size of the large icon
+                // Prior to that, we use a fixed size
+
+                @SuppressLint("InlinedApi")
+                int largeIconWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                        ? resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+                        : resources.getDimensionPixelSize(R.dimen.notification_large_icon_default);
+
+                @SuppressLint("InlinedApi")
+                int largeIconHeight = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                        ? resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+                        : resources.getDimensionPixelSize(R.dimen.notification_large_icon_default);
+
+                //Try to retrieve large icon
+                Bitmap largeIcon;
+
+                try {
+                    largeIcon = Glide.with(getContext())
+                            .load(artUrl)
+                            .asBitmap()
+                            .error(resourceId)
+                            .centerCrop()
+                            .into(largeIconWidth, largeIconHeight)
+                            .get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    Log.d(LOG_TAG, "Error retrieving large icon from " + artUrl, ex);
+                    //Instead load from local resource
+                    largeIcon = BitmapFactory.decodeResource(resources, resourceId);
+                }
+
                 //Take out the title for the notification
                 String title = currentContext.getString(R.string.app_name);
 
@@ -663,6 +707,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 //1) Create the Notification using NotificationCompat.builder.
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(currentContext);
                 builder.setSmallIcon(iconId);
+                builder.setLargeIcon(largeIcon);
                 builder.setContentTitle(title);
                 builder.setContentText(contentText);
 

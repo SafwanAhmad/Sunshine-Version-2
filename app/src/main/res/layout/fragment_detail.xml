@@ -74,7 +74,8 @@
                     android:id="@+id/detail_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:contentDescription="Today's weather icon"/>
+                    android:contentDescription="Today's weather icon"
+                    android:adjustViewBounds="true"/>
 
                 <TextView
                     android:id="@+id/detail_forecast_textview"

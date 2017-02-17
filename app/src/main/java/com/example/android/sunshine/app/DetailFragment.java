@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 
 /**
@@ -211,10 +212,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             //Set the icon
             int weatherId = data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
-            //Get the appropriate icon id
+            //Get the appropriate icon id used as back up
             int weatherIconId = Utility.getArtResourceForWeatherCondition(weatherId);
-            mIconView.setImageResource(weatherIconId);
 
+            //Use Glide to load appropriate icon into image view
+            Glide.with(this)
+                    .load(Utility.getArtUrlForWeatherCondition(getActivity(), weatherId))
+                    .error(weatherIconId)
+                    .crossFade()
+                    .into(mIconView);
 
             //Set the description of weather
             String description = data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));

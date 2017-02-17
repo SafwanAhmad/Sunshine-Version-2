@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
  * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
@@ -126,19 +128,26 @@ public class ForecastAdapter extends CursorAdapter {
         //Get the weather id for weather condition
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
 
+        int weatherIconId;
 
+        //These icon ids now will be used in case glide is not able to get icon from url
         if(layoutType == VIEW_TYPE_TODAY) {
-            int weatherIconId = Utility.getArtResourceForWeatherCondition(weatherId);
-            //Set the source for this image view
-            viewHolder.iconView.setImageResource(weatherIconId);
+            weatherIconId = Utility.getArtResourceForWeatherCondition(weatherId);
+
         }
         else {
-            int weatherIconId = Utility.getIconResourceForWeatherCondition(weatherId);
-            //Set the source for this image view
-            viewHolder.iconView.setImageResource(weatherIconId);
+            weatherIconId = Utility.getIconResourceForWeatherCondition(weatherId);
         }
 
-
+        //Use glide to load icon
+        Glide.with(context)
+                //Set the URL for the resource
+                .load(Utility.getArtUrlForWeatherCondition(context, weatherId))
+                //Back up resource
+                .error(weatherIconId)
+                .crossFade()
+                //Image view to be populated
+                .into(viewHolder.iconView);
 
         //Find date from the cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
