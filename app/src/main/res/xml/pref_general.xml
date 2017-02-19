@@ -20,6 +20,13 @@
         android:entryValues="@array/pref_units_values"
         android:entries="@array/pref_units_options" />
 
+    <ListPreference
+        android:title="@string/pref_icon_packs_title"
+        android:key="@string/pref_icon_packs_key"
+        android:defaultValue="@string/pref_icon_packs_colored"
+        android:entryValues="@array/pref_icon_packs_values"
+        android:entries="@array/pref_icon_packs_options" />
+
     <CheckBoxPreference
         android:title="@string/pref_enable_notifications_label"
         android:key="@string/pref_enable_notifications_key"

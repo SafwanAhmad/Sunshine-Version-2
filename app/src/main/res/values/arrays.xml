@@ -10,4 +10,16 @@
         <item>@string/pref_units_metric</item>
         <item>@string/pref_units_imperial</item>
     </string-array>
+
+    <!--Name of the art packs available-->
+    <string-array name="pref_icon_packs_options">
+        <item>@string/pref_icon_packs_label_colored</item>
+        <item>@string/pref_icon_packs_label_mono</item>
+    </string-array>
+
+    <string-array name="pref_icon_packs_values">
+        <item>@string/pref_icon_packs_colored</item>
+        <item>@string/pref_icon_packs_mono</item>
+    </string-array>
+
 </resources>

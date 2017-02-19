@@ -49,6 +49,23 @@
     <!-- Value in SharedPreferences for imperial temperature unit option [CHAR LIMIT=NONE] -->
     <string name="pref_units_imperial" translatable="false">imperial</string>
 
+    <!--Label for icon/art pack preference [CHAR LIMIT=30] -->
+    <string name="pref_icon_packs_title">Icon Packs</string>
+
+    <!--Key name for storing icon packs in Shared Preferences [CHAR LIMIT=NONE] -->
+    <string name="pref_icon_packs_key" translatable="false">icon_pack</string>
+
+    <!--Label for colored option in icon packs preference [CHAR LIMIT=25] -->
+    <string name="pref_icon_packs_label_colored">Colored</string>
+
+    <!--Label for mono option in icon packs preference [CHAR LIMIT=25] -->
+    <string name="pref_icon_packs_label_mono">Mono</string>
+
+    <!--Value in SharedPreferences for colored icon pack option [CHAR LIMIT=NONE] -->
+    <string name="pref_icon_packs_colored" translatable="false">https://github.com/udacity/sunshine_icons/blob/master/Archive/Colored/art_%s.png?raw=true</string>
+
+    <!--Value in SharedPreferences for mono icon pack option [CHAR LIMIT=NONE] -->
+    <string name="pref_icon_packs_mono" translatable="false">https://github.com/udacity/sunshine_icons/blob/master/Archive/Mono/art_%s.png?raw=true</string>
 
     <!-- Date label when displaying today's weather forecast [CHAR LIMIT=20] -->
     <string name="today">Today</string>
