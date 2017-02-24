@@ -15,6 +15,7 @@
  */
 package com.example.android.sunshine.app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -26,7 +27,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.sunshine.app.gcm.RegistrationIntentService;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+import com.google.android.gms.common.GoogleApiAvailability;
+
+import static com.google.android.gms.common.ConnectionResult.SUCCESS;
 
 
 public class MainActivity extends ActionBarActivity implements ForecastFragment.listItemClickedListener {
@@ -44,6 +49,12 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
     //Flag to check if device is two pane
     private boolean mTwoPane;
+
+    //Constant used by Google API availability check inside getErrorDialog method
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    // Key used to store the status of registration token
+    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +93,24 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
         //Initialize the Sync Adapter
         SunshineSyncAdapter.initializeSyncAdapter(this);
+
+        // Check if the device has Google Play Services apk available.
+        // If Google Play Services is up to date, we'll want to register GCM. If it is not, we'll
+        // skip the registration and this device will not receive any downstream messages from
+        // our fake server. Because weather alerts are not a core feature of the app, this should
+        // not affect the behavior of the app, from a user perspective.
+        if (checkPlayService()) {
+            // Because this is the initial creation of the app, we'll want to be certain we have
+            // a token. If we do not, then we will start the IntentService that will register this
+            // application with GCM.
+            boolean sentToken = sharedPreferences.getBoolean(MainActivity.SENT_TOKEN_TO_SERVER, false);
+
+            if(!sentToken)
+            {
+                Intent intent = new Intent(this, RegistrationIntentService.class);
+                startService(intent);
+            }
+        }
     }
 
     @Override
@@ -187,4 +216,34 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
         }
 
     }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayService() {
+        // Get the reference to GoogleApiAvailability singleton object
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+
+        // Check if the service is available
+        int isAvailable = apiAvailability.isGooglePlayServicesAvailable(this);
+
+        if (isAvailable != SUCCESS) {
+            // Determines whether an error can be resolved via user action
+            if (apiAvailability.isUserResolvableError(isAvailable)) {
+                // Proceed and get a dialog
+                Dialog dialog = apiAvailability.getErrorDialog(this, isAvailable, PLAY_SERVICES_RESOLUTION_REQUEST);
+                dialog.show();
+            } else {
+                // User can not resolve the error
+                Log.i(LOG_TAG, "This device is not supported!");
+                finish();
+            }
+
+            return false;
+        }
+        return true;
+    }
+
 }
