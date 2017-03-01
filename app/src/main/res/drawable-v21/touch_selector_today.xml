@@ -7,7 +7,10 @@
     </item>
 
     <item android:state_activated="true"
-        android:drawable="@color/color_blue"></item>
+        android:drawable="@color/color_primary_light"></item>
+
+    <item android:state_selected="true"
+        android:drawable="@color/color_primary_light"></item>
 
     <item android:drawable="@color/color_primary"></item>
 

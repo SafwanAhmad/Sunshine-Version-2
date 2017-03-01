@@ -4,8 +4,16 @@
     <color name="color_grey">#cccccc</color>
     <color name="color_yellow">#FFFF00</color>
 
-    <!--Action bar color-->
-    <color name="color_primary">#FF1CA8F4</color>
-    <!--Notification bar color-->
+    <!--Using colors as per material design specification.
+        https://material.io/guidelines/style/color.html#color-themes
+        We are using the light blue material color palette-->
+
+    <!--Action bar/App bar color-->
+    <color name="color_primary">#03A9F4</color>
+    <!--Notification bar/status bar color-->
     <color name="color_primary_dark">#0288D1</color>
+
+    <color name="color_primary_light">#B3E5FC</color>
+
+    <color name="color_accent">#FFD740</color>
 </resources>

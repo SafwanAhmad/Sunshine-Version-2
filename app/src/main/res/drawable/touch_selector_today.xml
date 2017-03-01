@@ -3,10 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:state_pressed="true"
-        android:drawable="@color/color_grey"></item>
+        android:drawable="@color/color_primary_light"></item>
 
     <item android:state_activated="true"
-        android:drawable="@color/color_blue"></item>
+        android:drawable="@color/color_primary_light"></item>
+
+    <item android:state_selected="true"
+        android:drawable="@color/color_primary_light"></item>
 
     <item android:drawable="@color/color_primary"></item>
 

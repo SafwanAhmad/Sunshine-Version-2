@@ -5,6 +5,7 @@
         <!-- Customize your theme here.Override the action and notfication bar colors -->
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
     </style>
 
     <!--Theme for the main activity, take advantage of parent (AppTheme) theme-->
