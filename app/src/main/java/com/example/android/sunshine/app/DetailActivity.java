@@ -19,6 +19,7 @@ package com.example.android.sunshine.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -28,6 +29,11 @@ public class DetailActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        //Find the associated tool bar and set it as action bar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //If two pane is not supported then this activity is launched through an
         //intent. Intent will have the uri also.

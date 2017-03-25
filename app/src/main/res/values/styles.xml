@@ -1,11 +1,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here.Override the action and notfication bar colors -->
+    <!--Change theme to Theme.AppCompat.Light.NoActionBar to use toolbar -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here.Override the action and notification bar colors -->
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
+        <item name="toolbarStyle">@style/Toolbar</item>
     </style>
 
     <!--Theme for the main activity, take advantage of parent (AppTheme) theme-->
@@ -28,6 +30,13 @@
     <style name="ForecastListStyle">
         <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
             for two-pane layout -->
+    </style>
+
+    <!-- This style is used for our toolbar in main activity and detail activity
+         we set out application theme to this inside manifest file. -->
+    <style name="Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="popupTheme">@style/Theme.AppCompat.Light</item>
     </style>
 
 </resources>

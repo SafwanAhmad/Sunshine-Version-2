@@ -3,24 +3,39 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
-    <fragment
-        android:id="@+id/fragment_forecast"
-        android:layout_width="0dp"
+    <!--We will use this tool bar as out action bar -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_main"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2"
-        class="com.example.android.sunshine.app.ForecastFragment"
-        tools:layout="@layout/fragment_main">
-    </fragment>
+        android:orientation="horizontal">
+
+        <fragment
+            android:id="@+id/fragment_forecast"
+            class="com.example.android.sunshine.app.ForecastFragment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            tools:layout="@layout/fragment_main"></fragment>
 
 
-    <FrameLayout
-        android:id="@+id/weather_detail_container"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3"/>
+        <FrameLayout
+            android:id="@+id/weather_detail_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" />
+
+    </LinearLayout>
 
 </LinearLayout>
