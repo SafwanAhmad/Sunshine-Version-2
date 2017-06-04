@@ -12,9 +12,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,7 +48,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     //Views required to set the data received from the loader
     private ImageView mIconView;
-    private TextView mFriendlyDateView;
     private TextView mDateView;
     private TextView mDescriptionView;
     private TextView mHighTempView;
@@ -58,6 +57,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mPressureView;
     private WindVane mWindVaneView;
     private ImageView mCompassView;
+    private TextView mHumidityLabelView;
+    private TextView mPressureLabelView;
+    private TextView mWindLabelView;
 
     //Projection string used to select the required columns from the table
     private static final String [] FORECAST_COLUMNS = {
@@ -102,7 +104,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         //Get all the view inside the root view
         mIconView = (ImageView)rootView.findViewById(R.id.detail_icon);
         mDateView = (TextView)rootView.findViewById(R.id.detail_date_textview);
-        mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
         mDescriptionView = (TextView) rootView.findViewById(R.id.detail_forecast_textview);
         mHighTempView = (TextView) rootView.findViewById(R.id.detail_high_textview);
         mLowTempView = (TextView) rootView.findViewById(R.id.detail_low_textview);
@@ -111,27 +112,27 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
         mWindVaneView = (WindVane) rootView.findViewById(R.id.detail_wind_vane_view);
         mCompassView = (ImageView) rootView.findViewById(R.id.detail_compass_view);
+        mHumidityLabelView = (TextView) rootView.findViewById(R.id.detail_humidity_label_textview);
+        mPressureLabelView = (TextView) rootView.findViewById(R.id.detail_pressure_label_textview);
+        mWindLabelView = (TextView) rootView.findViewById(R.id.detail_wind_label_textview);
         return rootView;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.detailfragment, menu);
 
+        // If this is for single pane device
+        if( getActivity() instanceof DetailActivity) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            inflater.inflate(R.menu.detailfragment, menu);
+            finishCreatingMenu(menu);
+        }
+    }
+
+    private void finishCreatingMenu(Menu menu) {
         // Retrieve the share menu item
         MenuItem menuItem = menu.findItem(R.id.action_share);
-
-        // Get the provider and hold onto it to set/change the share intent.
-        mShareActionProvider =
-                (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
-        //If onLoadFinished happens before this, we can go ahead and set the share intent now
-        if (mForecastStr != null ) {
-            mShareActionProvider.setShareIntent(createShareForecastIntent());
-        } else {
-            Log.d(LOG_TAG, "Share Action Provider is null?");
-        }
+        menuItem.setIntent(createShareForecastIntent());
     }
 
     private Intent createShareForecastIntent() {
@@ -186,15 +187,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if(data.moveToFirst()) {
+        if(data != null && data.moveToFirst()) {
 
             //Set the date and friendlyDate information
             long date = data.getLong(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATE));
-            String dateString = Utility.getFormattedMonthDay(getActivity(), date);
-            String friendlyDateString = Utility.getDayName(getActivity(), date);
-
+            String dateString = Utility.getFullFriendlyDayString(getActivity(), date);
             //Set date and friendly date
-            mFriendlyDateView.setText(friendlyDateString);
             mDateView.setText(dateString);
 
             //Find the unit
@@ -224,7 +222,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             //Set the description of weather
             String description = data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
-            mDescriptionView.setText(getString(R.string.a11y_forecast, description));
+            mDescriptionView.setText(description);
+            mDescriptionView.setContentDescription(getString(R.string.a11y_forecast, description));
 
             //Also update the content description for the image view
             // For accessibility, add a content description to the icon field. Because the ImageView
@@ -237,6 +236,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             //Set the humidity
             float humidity = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_HUMIDITY));
             mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
+            mHumidityView.setContentDescription(getString(R.string.a11y_humidity, mHighTempView.getText()));
+            mHumidityLabelView.setContentDescription(mHumidityView.getContentDescription());
 
             //Set the wind direction and speed
             float degrees = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DEGREES));
@@ -251,10 +252,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mWindView.setText(Utility.getFormattedWind(getActivity(), speed, degrees, true));
             //Set the content description
             mWindView.setContentDescription(Utility.getFormattedWind(getActivity(), speed, degrees, false));
+            // Set the content description for wind label
+            mWindLabelView.setContentDescription(mWindView.getContentDescription());
 
             //Set the pressure
             float pressure = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
             mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
+            // Set content description for pressure value
+            mPressureView.setContentDescription(getString(R.string.a11y_pressure, mPressureView.getText()));
+            // Set content description for pressure label
+            mPressureLabelView.setContentDescription(mPressureView.getContentDescription());
 
 
             //Still needed for the share intent
@@ -265,6 +272,34 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             //now.
             if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
+            }
+
+            // We will work on tool bar only when data is loaded.
+            // And here we assume that data is successfully loaded.
+            AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
+            // Get the toolbar
+            Toolbar toolbarView = (Toolbar) getView().findViewById(R.id.toolbar);
+
+            // For single pane devices
+            if (currentActivity instanceof DetailActivity) {
+                //https://plus.google.com/+AlexLockwood/posts/FJsp1N9XNLS
+                currentActivity.supportStartPostponedEnterTransition();
+
+                if (null != toolbarView) {
+                    currentActivity.setSupportActionBar(toolbarView);
+
+                    currentActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+                    currentActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                }
+            } else {
+                if (null != toolbarView) {
+                    Menu menu = toolbarView.getMenu();
+                    if (null != menu) {
+                        menu.clear();
+                        toolbarView.inflateMenu(R.menu.detailfragment);
+                        finishCreatingMenu(toolbarView.getMenu());
+                    }
+                }
             }
         }
 
